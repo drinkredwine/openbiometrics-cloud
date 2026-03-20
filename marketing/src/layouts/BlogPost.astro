@@ -1,0 +1,98 @@
+---
+interface Props {
+  title: string;
+  description: string;
+  date: string;
+  author?: string;
+  readTime?: string;
+}
+
+const { title, description, date, author = 'OpenBiometrics Team', readTime = '8 min read' } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#0a0a0a" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="https://openbiometrics.dev" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="article:published_time" content={date} />
+    <title>{title} | OpenBiometrics Blog</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  </head>
+  <body class="bg-[#0a0a0a] text-gray-100 antialiased" style="font-family: 'Inter', system-ui, sans-serif;">
+
+    <nav class="border-b border-white/5 bg-[#0a0a0a]/80 backdrop-blur-xl">
+      <div class="mx-auto flex max-w-4xl items-center justify-between px-6 py-4">
+        <a href="/" class="flex items-center gap-2.5">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none" class="h-7 w-7">
+            <rect width="32" height="32" rx="8" fill="#6366f1"/>
+            <circle cx="16" cy="13" r="5" stroke="white" stroke-width="2" fill="none"/>
+            <path d="M8 26c0-4.4 3.6-8 8-8s8 3.6 8 8" stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/>
+          </svg>
+          <span class="text-lg font-semibold tracking-tight">OpenBiometrics</span>
+        </a>
+        <div class="flex items-center gap-6">
+          <a href="/blog" class="text-sm text-gray-400 transition hover:text-white">Blog</a>
+          <a href="https://docs.openbiometrics.dev" class="text-sm text-gray-400 transition hover:text-white">Docs</a>
+          <a href="https://app.openbiometrics.dev" class="rounded-lg bg-indigo-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-400">Get API Key</a>
+        </div>
+      </div>
+    </nav>
+
+    <article class="mx-auto max-w-3xl px-6 py-16">
+      <header class="mb-12">
+        <div class="mb-4 flex items-center gap-3 text-sm text-gray-500">
+          <time datetime={date}>{new Date(date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</time>
+          <span>·</span>
+          <span>{readTime}</span>
+          <span>·</span>
+          <span>{author}</span>
+        </div>
+        <h1 class="text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl">{title}</h1>
+        <p class="mt-4 text-lg text-gray-400">{description}</p>
+      </header>
+
+      <div class="prose prose-invert prose-lg max-w-none
+        [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:mt-12 [&_h2]:mb-4
+        [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:mt-8 [&_h3]:mb-3
+        [&_p]:text-gray-300 [&_p]:leading-relaxed [&_p]:mb-4
+        [&_ul]:text-gray-300 [&_ul]:mb-4 [&_ul]:list-disc [&_ul]:pl-6
+        [&_ol]:text-gray-300 [&_ol]:mb-4 [&_ol]:list-decimal [&_ol]:pl-6
+        [&_li]:mb-2
+        [&_a]:text-indigo-400 [&_a]:underline [&_a]:decoration-indigo-400/30 hover:[&_a]:decoration-indigo-400
+        [&_code]:rounded [&_code]:bg-white/10 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:text-sm [&_code]:font-mono
+        [&_pre]:rounded-xl [&_pre]:bg-[#111] [&_pre]:border [&_pre]:border-white/5 [&_pre]:p-5 [&_pre]:overflow-x-auto [&_pre]:mb-6
+        [&_pre_code]:bg-transparent [&_pre_code]:p-0
+        [&_blockquote]:border-l-2 [&_blockquote]:border-indigo-500 [&_blockquote]:pl-4 [&_blockquote]:italic [&_blockquote]:text-gray-400
+        [&_table]:w-full [&_table]:mb-6 [&_th]:text-left [&_th]:border-b [&_th]:border-white/10 [&_th]:pb-2 [&_th]:text-sm [&_th]:font-medium [&_td]:border-b [&_td]:border-white/5 [&_td]:py-2 [&_td]:text-sm [&_td]:text-gray-400
+        [&_strong]:text-white [&_strong]:font-semibold
+        [&_hr]:border-white/10 [&_hr]:my-8
+      ">
+        <slot />
+      </div>
+
+      <footer class="mt-16 border-t border-white/10 pt-8">
+        <div class="rounded-xl border border-indigo-500/20 bg-indigo-500/5 p-6 text-center">
+          <h3 class="text-lg font-semibold">Ready to build with biometrics?</h3>
+          <p class="mt-2 text-sm text-gray-400">Get started in minutes with our free tier — no credit card required.</p>
+          <div class="mt-4 flex justify-center gap-3">
+            <a href="https://app.openbiometrics.dev" class="rounded-lg bg-indigo-500 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-indigo-400">Get API Key</a>
+            <a href="https://docs.openbiometrics.dev/quickstart/" class="rounded-lg border border-white/10 px-5 py-2.5 text-sm font-medium text-gray-300 transition hover:border-white/20 hover:text-white">Read the docs</a>
+          </div>
+        </div>
+      </footer>
+    </article>
+
+  </body>
+</html>

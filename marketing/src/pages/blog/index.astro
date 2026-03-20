@@ -1,0 +1,84 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+const posts = [
+  {
+    slug: 'kyc-verification-api-guide',
+    title: 'How to Build KYC Verification with an API in 2026',
+    description: 'A practical guide to adding identity verification to your app with face recognition, document scanning, and liveness detection.',
+    date: '2026-03-18',
+    readTime: '10 min read',
+    tags: ['KYC', 'Identity Verification', 'Tutorial'],
+  },
+  {
+    slug: 'best-open-source-face-recognition-sdk',
+    title: 'Best Open Source Face Recognition SDKs Compared (2026)',
+    description: 'InsightFace vs DeepFace vs CompreFace vs OpenBiometrics — accuracy, speed, licensing, and ease of use.',
+    date: '2026-03-16',
+    readTime: '12 min read',
+    tags: ['Face Recognition', 'Open Source', 'Comparison'],
+  },
+  {
+    slug: 'what-is-liveness-detection',
+    title: 'What is Liveness Detection? A Developer\'s Guide',
+    description: 'Passive vs active liveness, how anti-spoofing works, and how to add it to your app in 10 lines of code.',
+    date: '2026-03-14',
+    readTime: '8 min read',
+    tags: ['Liveness', 'Anti-Spoofing', 'Security'],
+  },
+  {
+    slug: 'identity-verification-build-vs-buy',
+    title: 'Identity Verification: Build vs Buy in 2026',
+    description: 'Should you build your own identity verification system or use an API? A cost and complexity analysis for engineering teams.',
+    date: '2026-03-12',
+    readTime: '9 min read',
+    tags: ['Identity Verification', 'Architecture', 'Strategy'],
+  },
+];
+---
+
+<Layout title="Blog | OpenBiometrics" description="Guides, tutorials, and insights on face recognition, identity verification, and biometric technology for developers.">
+
+  <nav class="border-b border-white/5 bg-[#0a0a0a]/80 backdrop-blur-xl">
+    <div class="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+      <a href="/" class="flex items-center gap-2.5">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none" class="h-7 w-7">
+          <rect width="32" height="32" rx="8" fill="#6366f1"/>
+          <circle cx="16" cy="13" r="5" stroke="white" stroke-width="2" fill="none"/>
+          <path d="M8 26c0-4.4 3.6-8 8-8s8 3.6 8 8" stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/>
+        </svg>
+        <span class="text-lg font-semibold tracking-tight">OpenBiometrics</span>
+      </a>
+      <div class="flex items-center gap-6">
+        <a href="/blog" class="text-sm text-white font-medium">Blog</a>
+        <a href="https://docs.openbiometrics.dev" class="text-sm text-gray-400 transition hover:text-white">Docs</a>
+        <a href="https://app.openbiometrics.dev" class="rounded-lg bg-indigo-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-400">Get API Key</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="mx-auto max-w-4xl px-6 py-16">
+    <h1 class="text-4xl font-extrabold tracking-tight">Blog</h1>
+    <p class="mt-3 text-lg text-gray-400">Guides, tutorials, and insights on biometric technology for developers.</p>
+
+    <div class="mt-12 space-y-8">
+      {posts.map((post) => (
+        <a href={`/blog/${post.slug}`} class="block group rounded-xl border border-white/5 bg-white/[0.02] p-6 transition hover:border-indigo-500/20 hover:bg-indigo-500/[0.02]">
+          <div class="mb-3 flex items-center gap-3 text-sm text-gray-500">
+            <time datetime={post.date}>{new Date(post.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</time>
+            <span>·</span>
+            <span>{post.readTime}</span>
+          </div>
+          <h2 class="text-xl font-bold transition group-hover:text-indigo-400">{post.title}</h2>
+          <p class="mt-2 text-gray-400">{post.description}</p>
+          <div class="mt-4 flex gap-2">
+            {post.tags.map((tag) => (
+              <span class="rounded-full bg-white/5 px-3 py-1 text-xs text-gray-400">{tag}</span>
+            ))}
+          </div>
+        </a>
+      ))}
+    </div>
+  </div>
+
+</Layout>

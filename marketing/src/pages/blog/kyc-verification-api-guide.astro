@@ -1,0 +1,168 @@
+---
+import BlogPost from '../../layouts/BlogPost.astro';
+---
+
+<BlogPost
+  title="How to Build KYC Verification with an API in 2026"
+  description="A practical guide to adding identity verification to your app with face recognition, document scanning, and liveness detection."
+  date="2026-03-18"
+  readTime="10 min read"
+>
+
+<p>Know Your Customer (KYC) verification used to require expensive vendor contracts, months of integration work, and deep expertise in biometrics. In 2026, you can add a complete KYC flow to your app in an afternoon with a <strong>KYC verification API</strong>.</p>
+
+<p>This guide walks you through building a production-ready KYC onboarding flow using OpenBiometrics — from document scanning to selfie verification to liveness detection.</p>
+
+<h2>What is KYC Verification?</h2>
+
+<p>KYC verification is the process of confirming a person's identity, typically required by financial regulations (AML/CFT). A modern KYC flow has three steps:</p>
+
+<ol>
+  <li><strong>Document capture</strong> — scan a passport, ID card, or driver's license</li>
+  <li><strong>Selfie verification</strong> — match the person's face against the document photo</li>
+  <li><strong>Liveness check</strong> — prove the person is physically present (not a photo or deepfake)</li>
+</ol>
+
+<h2>The Architecture</h2>
+
+<pre><code>User's phone/browser
+    |
+    ├── 1. Capture document image
+    ├── 2. Extract MRZ / OCR data
+    ├── 3. Capture selfie
+    ├── 4. Verify face matches document
+    └── 5. Liveness check (blink, smile)
+    |
+    ▼
+Your backend → OpenBiometrics API
+    |
+    ├── POST /documents/scan  → document type, MRZ data, OCR text
+    ├── POST /documents/verify → face match score
+    └── POST /liveness/sessions → challenge-response anti-spoofing
+</code></pre>
+
+<h2>Step 1: Scan the Document</h2>
+
+<p>The <code>/documents/scan</code> endpoint detects the document, corrects perspective, runs OCR, and parses the MRZ zone — all in a single call.</p>
+
+<pre><code>const doc = await ob.documents.scan(documentImage);
+
+console.log(doc.mrz.parsed.surname);      // "SMITH"
+console.log(doc.mrz.parsed.document_number); // "AB1234567"
+console.log(doc.mrz.parsed.nationality);    // "GBR"
+console.log(doc.mrz.check_digits_valid);    // true
+</code></pre>
+
+<p>Supported document types:</p>
+
+<table>
+  <thead><tr><th>Type</th><th>Format</th><th>Examples</th></tr></thead>
+  <tbody>
+    <tr><td>TD1</td><td>3 lines × 30 chars</td><td>National ID cards</td></tr>
+    <tr><td>TD2</td><td>2 lines × 36 chars</td><td>Travel documents</td></tr>
+    <tr><td>TD3</td><td>2 lines × 44 chars</td><td>Passports</td></tr>
+  </tbody>
+</table>
+
+<h2>Step 2: Verify Face Against Document</h2>
+
+<p>Compare the user's selfie against the photo extracted from the document:</p>
+
+<pre><code>const result = await ob.documents.verify(selfieImage, documentImage);
+
+if (result.is_match) {'{'}
+  console.log(`Match: ${'{'}(result.similarity * 100).toFixed(1){'}'}%`);
+{'}'} else {'{'}
+  // Reject: face doesn't match document
+{'}'}
+</code></pre>
+
+<p>The API uses ArcFace embeddings (99.86% accuracy on LFW) to compare faces. A similarity threshold of 0.4 corresponds to roughly 1-in-a-million false match rate.</p>
+
+<h2>Step 3: Liveness Detection</h2>
+
+<p>The final step prevents spoofing — someone holding up a printed photo or showing a screen.</p>
+
+<p><strong>Passive liveness</strong> (included in every detect call) catches basic attacks. For high-security KYC, use <strong>active liveness</strong> with challenge-response:</p>
+
+<pre><code>// Create a liveness session
+const session = await ob.liveness.createSession({'{'}
+  challenges: ['blink', 'turn_left'],
+  ttl_seconds: 120,
+{'}'});
+
+// Submit video frames as user completes challenges
+const result = await ob.liveness.submitFrame(session.session_id, frame);
+
+if (result.session_complete && result.is_live) {'{'}
+  // User is verified as a real person
+{'}'}
+</code></pre>
+
+<h2>Complete KYC Flow in 30 Lines</h2>
+
+<pre><code>import OpenBiometrics from 'openbiometrics';
+
+const ob = new OpenBiometrics({'{'} apiKey: process.env.OB_API_KEY {'}'});
+
+async function verifyIdentity(documentImage, selfieImage, livenessFrames) {'{'}
+  // 1. Scan document
+  const doc = await ob.documents.scan(documentImage);
+  if (!doc.mrz?.valid) throw new Error('Invalid document');
+
+  // 2. Match face
+  const match = await ob.documents.verify(selfieImage, documentImage);
+  if (!match.is_match) throw new Error('Face mismatch');
+
+  // 3. Liveness check
+  const session = await ob.liveness.createSession({'{'}
+    challenges: ['blink', 'smile'],
+  {'}'});
+
+  for (const frame of livenessFrames) {'{'}
+    const result = await ob.liveness.submitFrame(session.session_id, frame);
+    if (result.session_complete) {'{'}
+      if (!result.is_live) throw new Error('Liveness failed');
+      break;
+    {'}'}
+  {'}'}
+
+  return {'{'}
+    verified: true,
+    name: `${'{'} doc.mrz.parsed.given_names {'}'} ${'{'} doc.mrz.parsed.surname {'}'}`,
+    documentNumber: doc.mrz.parsed.document_number,
+    similarity: match.similarity,
+  {'}'};
+{'}'}
+</code></pre>
+
+<h2>Try It Live</h2>
+
+<p>We built a complete KYC demo app that implements this exact flow with a webcam interface. <a href="https://demo-kyc.openbiometrics.dev">Try the live KYC demo</a> — no signup required.</p>
+
+<h2>Self-Hosted vs Cloud</h2>
+
+<p>OpenBiometrics gives you both options:</p>
+
+<table>
+  <thead><tr><th></th><th>Self-hosted</th><th>Cloud API</th></tr></thead>
+  <tbody>
+    <tr><td>Cost</td><td>Free (MIT license)</td><td>From $29/mo</td></tr>
+    <tr><td>Setup</td><td>Docker, 5 minutes</td><td>API key, instant</td></tr>
+    <tr><td>Data</td><td>Stays on your servers</td><td>Processed + deleted</td></tr>
+    <tr><td>Best for</td><td>Regulated industries</td><td>Fast prototyping</td></tr>
+  </tbody>
+</table>
+
+<p>For KYC in regulated finance, self-hosting is often preferred because biometric data never leaves your infrastructure.</p>
+
+<h2>Next Steps</h2>
+
+<ul>
+  <li><a href="https://docs.openbiometrics.dev/quickstart/">Quickstart guide</a> — get running in 5 minutes</li>
+  <li><a href="https://docs.openbiometrics.dev/api/documents/">Document processing API reference</a></li>
+  <li><a href="https://docs.openbiometrics.dev/api/active-liveness/">Active liveness API reference</a></li>
+  <li><a href="https://demo-kyc.openbiometrics.dev">Live KYC demo</a></li>
+</ul>
+
+</BlogPost>

@@ -1,0 +1,120 @@
+---
+import BlogPost from '../../layouts/BlogPost.astro';
+---
+
+<BlogPost
+  title="What is Liveness Detection? A Developer's Guide"
+  description="Passive vs active liveness, how anti-spoofing works, and how to add it to your app in 10 lines of code."
+  date="2026-03-14"
+  readTime="8 min read"
+>
+
+<p><strong>Liveness detection</strong> answers one question: is the face in front of the camera a real, live person — or a spoofing attack?</p>
+
+<p>Without liveness detection, face recognition systems are trivially defeated by holding up a printed photo, playing a video on a phone, or using a 3D mask. Every production biometric system needs anti-spoofing.</p>
+
+<h2>Types of Spoofing Attacks</h2>
+
+<table>
+  <thead><tr><th>Attack</th><th>Description</th><th>Difficulty</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Print attack</strong></td><td>Printed photo held in front of camera</td><td>Trivial</td></tr>
+    <tr><td><strong>Screen replay</strong></td><td>Photo/video displayed on phone or tablet</td><td>Easy</td></tr>
+    <tr><td><strong>Video replay</strong></td><td>Pre-recorded video of the victim</td><td>Easy</td></tr>
+    <tr><td><strong>3D mask</strong></td><td>Silicone or 3D-printed face mask</td><td>Hard</td></tr>
+    <tr><td><strong>Deepfake</strong></td><td>AI-generated face injected into video stream</td><td>Hard</td></tr>
+  </tbody>
+</table>
+
+<h2>Passive Liveness</h2>
+
+<p>Passive liveness analyzes a <strong>single image</strong> to determine if it's a real face or a spoof. No user interaction required — the check happens invisibly.</p>
+
+<p>How it works: a neural network (typically MiniFASNet or similar) is trained on millions of real and fake face images. It learns to detect subtle artifacts: moire patterns from screens, paper texture, color distribution anomalies, depth cues.</p>
+
+<pre><code>// Passive liveness is included in every detect call
+const result = await ob.faces.detect(photo);
+const isLive = result.faces[0]?.liveness?.is_live;  // true or false
+const score = result.faces[0]?.liveness?.score;       // 0.0 to 1.0
+</code></pre>
+
+<p><strong>Strengths:</strong> Zero friction, works on any photo, fast (~10ms)<br/>
+<strong>Weaknesses:</strong> Can't detect high-quality video replays or deepfakes reliably</p>
+
+<h2>Active Liveness</h2>
+
+<p>Active liveness asks the user to perform <strong>specific actions</strong> — blink, smile, turn their head. The system verifies each action was performed correctly using facial landmark tracking.</p>
+
+<p>This is much harder to spoof because the attacker would need to generate real-time responses to random challenges.</p>
+
+<pre><code>// Create a liveness session with specific challenges
+const session = await ob.liveness.createSession({'{'}
+  challenges: ['blink', 'turn_left', 'smile'],
+  ttl_seconds: 120,
+{'}'});
+
+// Submit frames as user performs actions
+const result = await ob.liveness.submitFrame(
+  session.session_id,
+  videoFrame
+);
+
+// Check if challenge passed
+console.log(result.passed);              // true
+console.log(result.challenges_remaining); // 2
+</code></pre>
+
+<h2>Challenge Types</h2>
+
+<table>
+  <thead><tr><th>Challenge</th><th>What user does</th><th>What system checks</th></tr></thead>
+  <tbody>
+    <tr><td><code>blink</code></td><td>Blink eyes</td><td>Eye Aspect Ratio drops below threshold</td></tr>
+    <tr><td><code>smile</code></td><td>Smile naturally</td><td>Mouth width / face width ratio increases</td></tr>
+    <tr><td><code>turn_left</code></td><td>Turn head left</td><td>Head yaw angle exceeds -15 degrees</td></tr>
+    <tr><td><code>turn_right</code></td><td>Turn head right</td><td>Head yaw angle exceeds +15 degrees</td></tr>
+    <tr><td><code>look_up</code></td><td>Look upward</td><td>Head pitch angle exceeds threshold</td></tr>
+    <tr><td><code>look_down</code></td><td>Look downward</td><td>Head pitch angle exceeds threshold</td></tr>
+    <tr><td><code>open_mouth</code></td><td>Open mouth wide</td><td>Mouth Aspect Ratio exceeds threshold</td></tr>
+  </tbody>
+</table>
+
+<h2>Presets for Common Use Cases</h2>
+
+<p>OpenBiometrics includes pre-configured challenge sets for different security levels:</p>
+
+<table>
+  <thead><tr><th>Preset</th><th>Challenges</th><th>Security</th><th>Best for</th></tr></thead>
+  <tbody>
+    <tr><td><code>passive_only</code></td><td>None (MiniFASNet only)</td><td>Basic</td><td>Low-risk, zero friction</td></tr>
+    <tr><td><code>eye</code></td><td>2x blink</td><td>Medium</td><td>Phone unlock</td></tr>
+    <tr><td><code>smile</code></td><td>1x smile</td><td>Medium</td><td>Customer onboarding</td></tr>
+    <tr><td><code>head_turn</code></td><td>Turn left + right</td><td>High</td><td>Defeats flat photos</td></tr>
+    <tr><td><code>full</code></td><td>4x random</td><td>Highest</td><td>Financial KYC</td></tr>
+  </tbody>
+</table>
+
+<h2>Passive + Active Combined</h2>
+
+<p>The strongest approach combines both: passive liveness runs on every frame (catching obvious spoofs immediately), while active challenges prove the person can respond to real-time prompts.</p>
+
+<p>This two-layer approach stops:</p>
+<ul>
+  <li>Print attacks (passive catches texture)</li>
+  <li>Screen replays (passive catches moire patterns)</li>
+  <li>Video replays (active challenges are random each time)</li>
+  <li>Deepfakes (active liveness with head turns is extremely hard to fake in real-time)</li>
+</ul>
+
+<h2>Try It Live</h2>
+
+<p>Our <a href="https://demo-2fa.openbiometrics.dev">Face 2FA demo</a> uses active liveness as the second authentication factor. Our own <a href="https://app.openbiometrics.dev">dashboard login</a> uses face verification — we eat our own dogfood.</p>
+
+<h2>Add Liveness to Your App</h2>
+
+<pre><code>npm install openbiometrics
+</code></pre>
+
+<p><a href="https://docs.openbiometrics.dev/api/active-liveness/">Full API reference</a> | <a href="https://docs.openbiometrics.dev/quickstart/">Quickstart</a></p>
+
+</BlogPost>

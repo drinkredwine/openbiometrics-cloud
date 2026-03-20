@@ -1,0 +1,126 @@
+---
+import BlogPost from '../../layouts/BlogPost.astro';
+---
+
+<BlogPost
+  title="Identity Verification: Build vs Buy in 2026"
+  description="Should you build your own identity verification system or use an API? A cost and complexity analysis for engineering teams."
+  date="2026-03-12"
+  readTime="9 min read"
+>
+
+<p>Your product needs <strong>identity verification</strong>. Maybe you're a fintech launching KYC, a marketplace adding seller verification, or a platform that needs age gating. The first question: build or buy?</p>
+
+<p>In 2026, the answer has changed. Open-source biometric libraries and managed APIs make building significantly cheaper than it was even two years ago. But "build" doesn't mean what it used to — the real question is where on the spectrum you land.</p>
+
+<h2>The Spectrum</h2>
+
+<table>
+  <thead><tr><th>Option</th><th>Cost</th><th>Control</th><th>Time to launch</th></tr></thead>
+  <tbody>
+    <tr><td>Build from scratch (train models, write inference)</td><td>$500K+</td><td>Total</td><td>12-18 months</td></tr>
+    <tr><td>Assemble from open-source (InsightFace + custom server)</td><td>$20-50K</td><td>High</td><td>2-4 months</td></tr>
+    <tr><td>Open-source platform (OpenBiometrics self-hosted)</td><td>$0-5K</td><td>High</td><td>1-2 weeks</td></tr>
+    <tr><td>Managed API (OpenBiometrics Cloud, Onfido, Jumio)</td><td>$29-5K/mo</td><td>Medium</td><td>1-2 days</td></tr>
+    <tr><td>Enterprise vendor (IDEMIA, Innovatrics)</td><td>$50-500K/yr</td><td>Low</td><td>3-6 months</td></tr>
+  </tbody>
+</table>
+
+<h2>When to Build (Self-Host)</h2>
+
+<p>Self-hosting makes sense when:</p>
+
+<ul>
+  <li><strong>Regulatory requirements</strong> — biometric data cannot leave your infrastructure (GDPR, financial regulations)</li>
+  <li><strong>Volume economics</strong> — at 1M+ verifications/month, API pricing exceeds infrastructure costs</li>
+  <li><strong>Customization</strong> — you need to modify the pipeline (custom models, specific preprocessing)</li>
+  <li><strong>Latency</strong> — on-premise or edge deployment with &lt;50ms requirements</li>
+</ul>
+
+<p>With OpenBiometrics, self-hosting is a Docker container:</p>
+
+<pre><code>docker run -p 8000:8000 ghcr.io/openbiometrics/api:latest
+
+# Same API, same SDKs, same code — just different base URL
+const ob = new OpenBiometrics({'{'}
+  apiKey: 'any-value',
+  baseUrl: 'http://your-server:8000',
+{'}'});
+</code></pre>
+
+<h2>When to Use a Managed API</h2>
+
+<p>Managed APIs make sense when:</p>
+
+<ul>
+  <li><strong>Speed to market</strong> — you need identity verification this week, not this quarter</li>
+  <li><strong>Small team</strong> — no bandwidth to manage GPU servers, model updates, scaling</li>
+  <li><strong>Low volume</strong> — under 100K verifications/month, API pricing is cheaper than infrastructure</li>
+  <li><strong>Compliance</strong> — the vendor handles SOC 2, GDPR data processing agreements</li>
+</ul>
+
+<h2>Cost Analysis: Real Numbers</h2>
+
+<h3>Scenario: 10,000 KYC verifications per month</h3>
+
+<table>
+  <thead><tr><th>Option</th><th>Monthly cost</th><th>Setup time</th></tr></thead>
+  <tbody>
+    <tr><td>Onfido</td><td>~$5,000-10,000</td><td>2-4 weeks</td></tr>
+    <tr><td>Jumio</td><td>~$3,000-8,000</td><td>2-4 weeks</td></tr>
+    <tr><td>Veriff</td><td>~$2,000-5,000</td><td>1-2 weeks</td></tr>
+    <tr><td>OpenBiometrics Cloud</td><td>$29-99</td><td>1 day</td></tr>
+    <tr><td>OpenBiometrics Self-hosted</td><td>$10-50 (server)</td><td>1-2 days</td></tr>
+  </tbody>
+</table>
+
+<p>The economics are stark. Traditional identity verification vendors charge <strong>$1-5 per verification</strong>. OpenBiometrics Cloud starts at <strong>$29/month for 10,000 calls</strong> — that's $0.003 per verification. Self-hosted is effectively free beyond server costs.</p>
+
+<h2>What About Accuracy?</h2>
+
+<p>The open-source models in 2026 are remarkably close to commercial offerings. OpenBiometrics uses the same ArcFace architecture that powers NIST FRVT top-10 performers:</p>
+
+<table>
+  <thead><tr><th>Metric</th><th>OpenBiometrics</th><th>Enterprise vendors</th></tr></thead>
+  <tbody>
+    <tr><td>LFW accuracy</td><td>99.86%</td><td>99.8-99.9%</td></tr>
+    <tr><td>Liveness detection</td><td>Passive + 7 active challenges</td><td>Similar</td></tr>
+    <tr><td>Document OCR</td><td>MRZ + full OCR</td><td>MRZ + full OCR + NFC</td></tr>
+    <tr><td>Edge deployment</td><td>Yes (Jetson, ARM)</td><td>Limited</td></tr>
+  </tbody>
+</table>
+
+<p>The gap is narrowing. For most use cases outside of top-security government applications, open-source accuracy is production-ready.</p>
+
+<h2>The Third Option: Open Core</h2>
+
+<p>OpenBiometrics offers a unique middle ground — <strong>open core</strong>:</p>
+
+<ul>
+  <li><strong>Free tier:</strong> Self-host with MIT license, unlimited usage</li>
+  <li><strong>Cloud tier:</strong> Managed API at $29-99/month when you don't want to manage infrastructure</li>
+  <li><strong>Same codebase:</strong> Migrate between self-hosted and cloud without code changes</li>
+</ul>
+
+<p>Start with the cloud API today, move to self-hosted when you scale. Or start self-hosted and add the cloud API for customers who want managed service.</p>
+
+<h2>Decision Framework</h2>
+
+<p>Ask these four questions:</p>
+
+<ol>
+  <li><strong>Can biometric data leave your infrastructure?</strong> If no → self-host</li>
+  <li><strong>Do you need it this week?</strong> If yes → managed API</li>
+  <li><strong>Is volume over 100K/month?</strong> If yes → self-host (cheaper)</li>
+  <li><strong>Do you have DevOps capacity?</strong> If no → managed API</li>
+</ol>
+
+<h2>Get Started</h2>
+
+<ul>
+  <li><a href="https://app.openbiometrics.dev">Get a free API key</a> (100 calls/month, no credit card)</li>
+  <li><a href="https://docs.openbiometrics.dev/quickstart/">Self-hosting quickstart</a></li>
+  <li><a href="https://demo-kyc.openbiometrics.dev">Try the KYC demo</a></li>
+</ul>
+
+</BlogPost>

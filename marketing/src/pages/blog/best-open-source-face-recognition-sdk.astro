@@ -1,0 +1,149 @@
+---
+import BlogPost from '../../layouts/BlogPost.astro';
+---
+
+<BlogPost
+  title="Best Open Source Face Recognition SDKs Compared (2026)"
+  description="InsightFace vs DeepFace vs CompreFace vs OpenBiometrics — accuracy, speed, licensing, and ease of use."
+  date="2026-03-16"
+  readTime="12 min read"
+>
+
+<p>Choosing a <strong>face recognition SDK</strong> is one of the most consequential decisions in a biometric project. The wrong choice means months of integration pain, accuracy issues, or licensing surprises. This comparison covers the four leading open-source options in 2026.</p>
+
+<h2>The Contenders</h2>
+
+<table>
+  <thead><tr><th>SDK</th><th>Stars</th><th>License</th><th>LFW Accuracy</th><th>Language</th></tr></thead>
+  <tbody>
+    <tr><td><strong>InsightFace</strong></td><td>24K+</td><td>MIT (code), restricted (models)</td><td>99.86%</td><td>Python</td></tr>
+    <tr><td><strong>DeepFace</strong></td><td>22K+</td><td>MIT</td><td>99.65% (FaceNet)</td><td>Python</td></tr>
+    <tr><td><strong>CompreFace</strong></td><td>5.5K+</td><td>Apache 2.0</td><td>99.65%</td><td>Docker/REST</td></tr>
+    <tr><td><strong>OpenBiometrics</strong></td><td>New</td><td>MIT</td><td>99.86%</td><td>Python + REST + SDKs</td></tr>
+  </tbody>
+</table>
+
+<h2>InsightFace</h2>
+
+<p>InsightFace is the <strong>research powerhouse</strong>. It provides the ArcFace model (the state-of-the-art for face recognition), SCRFD detector, and training pipelines for custom models. If you're doing ML research or training your own models, InsightFace is the foundation.</p>
+
+<p><strong>Pros:</strong></p>
+<ul>
+  <li>Highest accuracy (99.86% LFW with buffalo_l)</li>
+  <li>Multiple model sizes (buffalo_l for servers, buffalo_s for edge)</li>
+  <li>Active research community</li>
+  <li>ONNX export for deployment</li>
+</ul>
+
+<p><strong>Cons:</strong></p>
+<ul>
+  <li>Pretrained models have a <strong>non-commercial license</strong> — free for research, paid for production</li>
+  <li>No REST API — you build your own server</li>
+  <li>No liveness detection, document processing, or watchlist management</li>
+  <li>Python-only, no TypeScript/Node.js SDK</li>
+</ul>
+
+<h2>DeepFace</h2>
+
+<p>DeepFace is the <strong>Swiss army knife</strong>. It wraps multiple backends (VGG-Face, FaceNet, ArcFace, OpenFace) behind a unified Python API. Great for prototyping and experimentation.</p>
+
+<p><strong>Pros:</strong></p>
+<ul>
+  <li>Fully MIT licensed (code and models)</li>
+  <li>Multiple backend options</li>
+  <li>Age, gender, emotion, race analysis built-in</li>
+  <li>Simple Python API</li>
+</ul>
+
+<p><strong>Cons:</strong></p>
+<ul>
+  <li>Lower accuracy than InsightFace (99.65% with FaceNet)</li>
+  <li>No REST API server included</li>
+  <li>No liveness detection</li>
+  <li>Heavier dependencies (TensorFlow or PyTorch depending on backend)</li>
+  <li>Not designed for production deployment</li>
+</ul>
+
+<h2>CompreFace</h2>
+
+<p>CompreFace is the <strong>closest to a product</strong>. It ships as a Docker Compose stack with a REST API, face collections, and a web UI. If you want face recognition as a service without building infrastructure, CompreFace is solid.</p>
+
+<p><strong>Pros:</strong></p>
+<ul>
+  <li>Docker Compose — up and running in minutes</li>
+  <li>REST API out of the box</li>
+  <li>Face collections (watchlists)</li>
+  <li>Apache 2.0 — fully open for commercial use</li>
+</ul>
+
+<p><strong>Cons:</strong></p>
+<ul>
+  <li>x86 server only — no edge/ARM/Jetson support</li>
+  <li>No liveness detection</li>
+  <li>No document processing</li>
+  <li>No active development in 2025-2026</li>
+  <li>Java backend — harder to customize</li>
+</ul>
+
+<h2>OpenBiometrics</h2>
+
+<p>OpenBiometrics is the <strong>full platform</strong> — it bundles face recognition with everything you need for production biometric applications: liveness detection, document processing, video analytics, event system, and multi-language SDKs.</p>
+
+<p><strong>Pros:</strong></p>
+<ul>
+  <li>99.86% accuracy (uses InsightFace's ArcFace under the hood)</li>
+  <li>MIT licensed — code and deployment</li>
+  <li>REST API, Node.js SDK, Python SDK</li>
+  <li>Active liveness (7 challenge types), passive liveness</li>
+  <li>Document scanning (MRZ, OCR)</li>
+  <li>Video analytics, event bus, webhooks</li>
+  <li>Edge deployment (Jetson, ARM, Docker)</li>
+  <li>Cloud API option with dashboard</li>
+</ul>
+
+<p><strong>Cons:</strong></p>
+<ul>
+  <li>Newer project — smaller community</li>
+  <li>InsightFace model licensing still applies to the underlying ONNX models</li>
+</ul>
+
+<h2>Head-to-Head Comparison</h2>
+
+<table>
+  <thead><tr><th>Feature</th><th>InsightFace</th><th>DeepFace</th><th>CompreFace</th><th>OpenBiometrics</th></tr></thead>
+  <tbody>
+    <tr><td>REST API</td><td>No</td><td>No</td><td>Yes</td><td>Yes</td></tr>
+    <tr><td>Node.js SDK</td><td>No</td><td>No</td><td>Yes</td><td>Yes</td></tr>
+    <tr><td>Python SDK</td><td>Yes</td><td>Yes</td><td>Yes</td><td>Yes</td></tr>
+    <tr><td>Liveness</td><td>No</td><td>No</td><td>No</td><td>Passive + Active</td></tr>
+    <tr><td>Documents</td><td>No</td><td>No</td><td>No</td><td>MRZ + OCR</td></tr>
+    <tr><td>Watchlists</td><td>No</td><td>No</td><td>Yes</td><td>Yes (FAISS)</td></tr>
+    <tr><td>Edge/ARM</td><td>Partial</td><td>No</td><td>No</td><td>Yes</td></tr>
+    <tr><td>Video</td><td>No</td><td>No</td><td>No</td><td>Multi-camera</td></tr>
+    <tr><td>Cloud option</td><td>No</td><td>No</td><td>No</td><td>Yes</td></tr>
+  </tbody>
+</table>
+
+<h2>When to Use What</h2>
+
+<ul>
+  <li><strong>InsightFace</strong> — you're training custom models or doing ML research</li>
+  <li><strong>DeepFace</strong> — you want a quick Python prototype with multiple backends</li>
+  <li><strong>CompreFace</strong> — you need a self-hosted REST API for face recognition only</li>
+  <li><strong>OpenBiometrics</strong> — you're building a product that needs face recognition + liveness + documents + video</li>
+</ul>
+
+<h2>Get Started</h2>
+
+<pre><code># Self-hosted
+git clone https://github.com/drinkredwine/openbiometrics
+cd openbiometrics/engine && pip install -e . && python download_models.py
+cd ../api && uvicorn app.main:app --port 8000
+
+# Or use the cloud API
+npm install openbiometrics
+</code></pre>
+
+<p><a href="https://docs.openbiometrics.dev/quickstart/">Read the quickstart</a> or <a href="https://demo-kyc.openbiometrics.dev">try a live demo</a>.</p>
+
+</BlogPost>
